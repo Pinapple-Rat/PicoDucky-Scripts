@@ -1,0 +1,25 @@
+REM Open a command prompt
+GUI r
+DELAY 500
+STRING cmd
+ENTER
+DELAY 500
+
+REM Write the PowerShell script
+STRING echo $LogFile = "$env:USERPROFILE\Documents\network_map.txt" > %TEMP%\netmap.ps1
+ENTER
+STRING echo $IPConfig = ipconfig ^| Out-String >> %TEMP%\netmap.ps1
+ENTER
+STRING echo $ARP = arp -a ^| Out-String >> %TEMP%\netmap.ps1
+ENTER
+STRING echo $OpenPorts = netstat -an ^| Out-String >> %TEMP%\netmap.ps1
+ENTER
+STRING echo $Output = "=== Network Information ===`n^$IPConfig`n`n=== ARP Table ===`n^$ARP`n`n=== Open Ports ===`n^$OpenPorts" >> %TEMP%\netmap.ps1
+ENTER
+STRING echo ^$Output ^| Out-File -FilePath ^$LogFile >> %TEMP%\netmap.ps1
+ENTER
+
+REM Execute the PowerShell script
+STRING powershell -ExecutionPolicy Bypass -File %TEMP%\netmap.ps1
+ENTER
+

